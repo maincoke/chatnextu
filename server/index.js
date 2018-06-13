@@ -1,7 +1,7 @@
 // Inicializacion del Servidor de App Chat
-var bodyParser = require('body-parser'),
-    http = require('http'),
-    express = require('express'),
+var bodyParser = require('body-parser'), // Importanto Paquete Body-Parser
+    http = require('http'), // Importanto Paquete http
+    express = require('express'), // Importanto Paquete Express
     chat = require('./Chat'); // Importancion de App Chat
 
 var port = port = process.env.PORT || 3000,
