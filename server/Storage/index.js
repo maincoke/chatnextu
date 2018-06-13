@@ -1,3 +1,7 @@
+/**
+ * Funcionalidad de File System de la App Chat.
+ * Se exportan dos funciones que realizan la lectura y escritura del Chat.
+ */
 var fs = require('fs'),
     path = require('path');
 
