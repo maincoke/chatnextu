@@ -193,4 +193,4 @@ module.exports = Router;
         }
     })()
     Chat.Init();
-})(document, window, undefined, jQuery);
+})(document, window, undefined, jQuery)
