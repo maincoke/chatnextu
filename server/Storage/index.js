@@ -8,10 +8,11 @@ var fs = require('fs'),
 module.exports = {
 
     saveData: function(dataType, newData, data) {
-        var dataPath = dataType == 'users' ? __dirname + path.join('data/users.json') :
+        var dataPath = dataType == 'users' ?
+            __dirname + path.join('data/users.json') :
             __dirname + path.join('/data/messages.json');
         data.current.push(newData);
-        return new Promise(function(resolver, reject) {
+        return new Promise(function(resolve, reject) {
             fs.writeFile(dataPath, JSON.stringify(data), function(err) {
                 if (err) reject(err);
                 resolve('Ok');

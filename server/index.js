@@ -11,7 +11,7 @@ var port = port = process.env.PORT || 3000,
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use('chat', chat); // Importacion de App Chat
+app.use('/chat', chat); // Importacion de App Chat
 app.use(express.static('public'));
 
 Server.listen(port, function() {
