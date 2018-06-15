@@ -70,7 +70,7 @@ $(function() {
         })
     }
 
-    (function(document, windows, $) {
+    (function(document, windows, undefined, $) {
         (function() {
             return Chat = {
                 // Codigo de Aplicacion Chat Englobada en un modulo POO.
@@ -106,7 +106,7 @@ $(function() {
                     var endpoint = self.apiUrl + '/users';
                     self.ajaxRequest(endpoint, 'GET', {})
                         .done(function(data) {
-                            var users = data.current;
+                            var users = data;
                             self.renderUser(users);
                         })
                         .fail(function(err) {
@@ -118,18 +118,17 @@ $(function() {
                         url: url,
                         type: type,
                         data: data
-                    })
+                    });
                 },
-                joinUser: function(user) {
+                joinUser: function(juser) {
                     var self = this;
                     var endpoint = self.apiUrl + '/users';
-                    var userObj = { user: user };
+                    var userObj = { user: juser };
                     self.ajaxRequest(endpoint, 'POST', userObj)
                         .done(function(confirm) {
                             console.log(confirm)
                         })
                         .fail(function(error) {
-                            console.log(error);
                             alert(error);
                         });
                 },
@@ -145,6 +144,7 @@ $(function() {
                         var newUser = userTemplate
                             .replace(':image:', 'person.png')
                             .replace(':nombre:', user.nombre);
+                        userList.append(newUser);
                     });
                 },
                 watchMessages: function() {
@@ -156,23 +156,26 @@ $(function() {
                                     sender: self.userName,
                                     text: $(this).val()
                                 }
+                                $(this).val('');
+                                $(this).trim();
+                                $(this).focus();
                                 self.renderMessage(message);
-                                $(this).val('')
                             } else {
                                 e.preventDefault();
                             }
                         }
                     });
                     self.$btnMessages.on('click', function() {
-                        if (self.$messageText.val() != '') {
+                        if (self.$messageText.val().trim() != '') {
                             var message = {
                                 sender: self.userName,
-                                text: $(this).val()
+                                text: self.$messageText.val()
                             }
-                            self.renderMessage(message);
                             self.$messageText.val('');
+                            self.$messageText.focus();
+                            self.renderMessage(message);
                         }
-                    })
+                    });
                 },
                 renderMessage: function(message) {
                     var self = this;
@@ -189,16 +192,22 @@ $(function() {
                         '<span class="numHora">:hora:</span></div>' +
                         '</div></div>';
                     var currentDate = new Date();
+
+                    function getTimeMessage(currentDate) {
+                        function fix(n) { return n < 10 ? '0' + n : n }
+                        return fix(currentDate.getHours()) + ':' + fix(currentDate.getMinutes());
+                    }
+                    var messageTime = getTimeMessage(currentDate);
                     var newMessage = messageTemplate
                         .replace(':tipoMensaje:', tipoMensaje)
                         .replace(':nombre', message.sender)
                         .replace(':mensaje:', message.text)
-                        .replace(':hora:', currentDate.getHours() + currentDate.getMinutes());
+                        .replace(':hora:', messageTime);
                     messageList.append(newMessage);
-                    $('.scroller-chat').animate({ scrollTop: $('scroller-char').get(0).scrollHeight }, 500);
+                    $('.historial-chat').animate({ scrollTop: $('.historial-chat').scrollHeight }, 500);
                 }
             }
         })()
         Chat.Init();
-    })(document, window, jQuery);
+    })(document, window, undefined, jQuery);
 });

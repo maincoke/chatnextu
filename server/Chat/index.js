@@ -25,19 +25,19 @@ Router.get('/messages', function(req, res) {
 
 Router.post('/users', function(req, res) {
     // POST Usuario
-    var user = req.body.users;
+    var user = req.body.user;
     Storage.getData('users')
         .then(function(users) {
             return new Promise(function(resolve, reject) {
                 Storage.saveData('users', user, users)
-                    .then(function(message) {
-                        resolve(message);
+                    .then(function(users) { // message
+                        resolve(users); // message
                     }).catch(function(err) {
                         reject(err);
                     })
             })
-        }).then(function(message) {
-            res.json(message);
+        }).then(function(users) { // message
+            res.json(users); // message
         }).catch(function(err) {
             res.sendStatus(500).json(err);
         });
@@ -49,7 +49,7 @@ Router.post('/messages', function(req, res) {
     Storage.getData('message')
         .then(function(message) {
             return new Promise(function(resolve, reject) {
-                Storage.saveData('users', message, message)
+                Storage.saveData('messages', message, message)
                     .then(function(message) {
                         resolve(message);
                     }).catch(function(err) {
