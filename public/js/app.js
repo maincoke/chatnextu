@@ -70,7 +70,7 @@ $(function() {
         })
     }
 
-    (function(document, windows, undefined, $) {
+    (function(document, windows, undefined, $, io) {
         (function() {
             return Chat = {
                 // Codigo de Aplicacion Chat Englobada en un modulo POO.
@@ -79,6 +79,7 @@ $(function() {
                 $btnMessages: $('#btnMessage'),
                 $messageText: $('#messageText'),
                 userName: '',
+                socket: io(),
 
                 Init: function() {
                     var self = this;
@@ -86,6 +87,18 @@ $(function() {
                         self.renderUser(user);
                     });
                     this.watchMessages();
+                    self.socket.on('userJoin', function(user) {
+                        self.renderUser(user);
+                    });
+                    self.socket.on('message', function(message) {
+                        self.renderMessage(message);
+                    });
+                    self.socket.on('disconnect', function(id) {
+                        console.log(id);
+                        if (id != null) {
+                            self.getInitialUsers();
+                        }
+                    });
                 },
                 fetchUserInfo: function(callback) {
                     var self = this;
@@ -94,6 +107,7 @@ $(function() {
                     $guardaInfo.on('click', function() {
                         var nameuser = $('.nombreUsuario').val();
                         var user = [{ nombre: nameuser, img: 'person.png' }];
+                        self.socket.emit('userJoin', user[0]);
                         callback(user);
                         self.joinUser(user[0]); // ----> Ingreso de usuario nuevo
                         self.userName = nameuser;
@@ -140,12 +154,16 @@ $(function() {
                         '<span class="title">:nombre:</span>' +
                         '<p><img src="image/online.png"/> En línea </p>' +
                         '</li>';
-                    users.map(function(user) {
-                        var newUser = userTemplate
-                            .replace(':image:', 'person.png')
-                            .replace(':nombre:', user.nombre);
-                        userList.append(newUser);
-                    });
+                    if (users.length != 0) {
+                        users.map(function(user) {
+                            var newUser = userTemplate
+                                .replace(':image:', 'person.png')
+                                .replace(':nombre:', user.nombre);
+                            userList.append(newUser);
+                        });
+                    } else {
+                        userList.children('<li>').remove()
+                    }
                 },
                 watchMessages: function() {
                     var self = this;
@@ -157,9 +175,9 @@ $(function() {
                                     text: $(this).val()
                                 }
                                 $(this).val('');
-                                $(this).trim();
                                 $(this).focus();
                                 self.renderMessage(message);
+                                self.socket.emit('message', message);
                             } else {
                                 e.preventDefault();
                             }
@@ -174,6 +192,7 @@ $(function() {
                             self.$messageText.val('');
                             self.$messageText.focus();
                             self.renderMessage(message);
+                            self.socket.emit('message', message);
                         }
                     });
                 },
@@ -209,5 +228,5 @@ $(function() {
             }
         })()
         Chat.Init();
-    })(document, window, undefined, jQuery);
+    })(document, window, undefined, jQuery, io);
 });
