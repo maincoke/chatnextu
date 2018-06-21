@@ -2,7 +2,7 @@
  * Funcionalidad de File System de la App Chat.
  * Se exportan dos funciones que realizan la lectura y escritura del Chat.
  */
-var fs = require('fs'),
+const fs = require('fs'),
     path = require('path');
 
 module.exports = {
@@ -12,8 +12,8 @@ module.exports = {
             __dirname + path.join('/data/users.json') :
             __dirname + path.join('/data/messages.json');
         data.push(newData);
-        return new Promise(function(resolve, reject) {
-            fs.writeFile(dataPath, JSON.stringify(data), function(err) {
+        return new Promise((resolve, reject) => {
+            fs.writeFile(dataPath, JSON.stringify(data), err => {
                 if (err) reject(err)
                 resolve('Ok');
             });
@@ -23,8 +23,8 @@ module.exports = {
         var dataPath = dataType == 'users' ?
             __dirname + path.join('/data/users.json') :
             __dirname + path.join('/data/messages.json');
-        return new Promise(function(resolve, reject) {
-            fs.readFile(dataPath, 'utf8', function(err, readData) {
+        return new Promise((resolve, reject) => {
+            fs.readFile(dataPath, 'utf8', (err, readData) => {
                 if (err) reject(err)
                 resolve(JSON.parse(readData));
             });

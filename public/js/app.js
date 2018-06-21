@@ -1,6 +1,6 @@
 //-----FUNCIONES DEL DISEÑO ADAPTATIVO------//
 function isMobile() {
-    var screenSize = screen.width;
+    let screenSize = screen.width;
     if (screenSize < 992) {
         return true
     } else return false;
@@ -15,15 +15,14 @@ function inicioOrganizacion() {
 
 function organizarMensaje() {
     $(".numHora").unwrap();
-    var horas = $(".numHora");
-    for (var i = 0; i < horas.length; i++) {
+    let horas = $(".numHora");
+    for (let i = 0; i < horas.length; i++) {
         $(horas[i]).prependTo($(horas[i]).prev());
     }
-    var horasRecibido = $(".recibidos .numHora");
-    for (var i = 0; i < horasRecibido.length; i++) {
+    let horasRecibido = $(".recibidos .numHora");
+    for (let i = 0; i < horasRecibido.length; i++) {
         $(horasRecibido[i]).next().after(horasRecibido[i]);
     }
-
 }
 
 function slideContactos(direction) {
@@ -47,8 +46,6 @@ function slideContactos(direction) {
 
             desplegado = false;
         }
-
-
     }
 }
 
@@ -82,50 +79,39 @@ $(function() {
                 socket: io(),
 
                 Init: function() {
-                    var self = this;
-                    this.fetchUserInfo(function(user) {
-                        self.renderUser(user);
-                    });
+                    this.fetchUserInfo(user => this.renderUser(user));
                     this.watchMessages();
-                    self.socket.on('userJoin', function(user) {
-                        self.renderUser(user);
-                    });
-                    self.socket.on('message', function(message) {
-                        self.renderMessage(message);
-                    });
-                    self.socket.on('disconnect', function(id) {
-                        console.log(id);
-                        if (id != null) {
-                            self.getInitialUsers();
-                        }
+                    this.socket.on('userJoin', user => this.renderUser(user));
+                    this.socket.on('message', message => this.renderMessage(message));
+                    this.socket.on('refreshUsers', () => {
+                        $('.users-list').children('.collection-item').remove()
+                        this.getInitialUsers();
                     });
                 },
                 fetchUserInfo: function(callback) {
-                    var self = this;
                     this.$userDataModal.openModal();
-                    var $guardaInfo = $('.guardaInfo');
-                    $guardaInfo.on('click', function() {
-                        var nameuser = $('.nombreUsuario').val();
-                        var user = [{ nombre: nameuser, img: 'person.png' }];
-                        self.socket.emit('userJoin', user[0]);
-                        callback(user);
-                        self.joinUser(user[0]); // ----> Ingreso de usuario nuevo
-                        self.userName = nameuser;
-                        self.$userDataModal.closeModal();
+                    let $guardaInfo = $('.guardaInfo');
+                    $guardaInfo.on('click', () => {
+                        let nameuser = $('.nombreUsuario').val();
+                        let user = [{ nombre: nameuser, img: 'person.png' }];
+                        this.socket.emit('userJoin', user[0]);
+                        callback(user[0]);
+                        this.joinUser(user[0]); // ----> Ingreso de usuario nuevo
+                        this.userName = nameuser;
+                        this.$userDataModal.closeModal();
                     });
-                    self.getInitialUsers();
+                    this.getInitialUsers();
                 },
                 getInitialUsers: function() {
-                    var self = this;
-                    var endpoint = self.apiUrl + '/users';
-                    self.ajaxRequest(endpoint, 'GET', {})
-                        .done(function(data) {
-                            var users = data;
-                            self.renderUser(users);
+                    let endpoint = this.apiUrl + '/users';
+                    this.ajaxRequest(endpoint, 'GET', {})
+                        .done(data => {
+                            if (data.length != 0) {
+                                var users = data;
+                                users.forEach(user => this.renderUser(user));
+                            }
                         })
-                        .fail(function(err) {
-                            console.log(err);
-                        })
+                        .fail(err => console.log(err));
                 },
                 ajaxRequest: function(url, type, data) {
                     return $.ajax({
@@ -135,95 +121,73 @@ $(function() {
                     });
                 },
                 joinUser: function(juser) {
-                    var self = this;
-                    var endpoint = self.apiUrl + '/users';
-                    var userObj = { user: juser };
-                    self.ajaxRequest(endpoint, 'POST', userObj)
-                        .done(function(confirm) {
-                            console.log(confirm)
-                        })
-                        .fail(function(error) {
-                            alert(error);
-                        });
+                    let endpoint = this.apiUrl + '/users',
+                        userObj = { user: juser };
+                    this.ajaxRequest(endpoint, 'POST', userObj)
+                        .done(confirm => console.log(confirm))
+                        .fail(error => alert(error));
                 },
-                renderUser: function(users) {
-                    var self = this;
-                    var userList = $('.users-list');
-                    var userTemplate = '<li class="collection-item avatar">' +
-                        '<img src="image/:image:" class="circle">' +
-                        '<span class="title">:nombre:</span>' +
-                        '<p><img src="image/online.png"/> En línea </p>' +
-                        '</li>';
-                    if (users.length != 0) {
-                        users.map(function(user) {
-                            var newUser = userTemplate
-                                .replace(':image:', 'person.png')
-                                .replace(':nombre:', user.nombre);
-                            userList.append(newUser);
-                        });
-                    } else {
-                        userList.children('<li>').remove()
+                renderUser: function(user, img = 'person.png') {
+                    if (user !== undefined) {
+                        let userList = $('.users-list');
+                        userList.append(`<li class="collection-item avatar">
+                            <img src="image/${img}" class="circle">
+                            <span class="title">${user.nombre}</span>
+                            <p><img src="image/online.png"/> En línea </p>
+                            </li>`);
                     }
                 },
                 watchMessages: function() {
-                    var self = this;
-                    self.$messageText.on('keypress', function(e) {
+                    this.$messageText.on('keypress', e => {
                         if (e.which == 13) {
-                            if ($(this).val().trim() != '') {
-                                var message = {
-                                    sender: self.userName,
-                                    text: $(this).val()
+                            if (this.$messageText.val().trim() != '') {
+                                let message = {
+                                    sender: this.userName,
+                                    text: this.$messageText.val()
                                 }
-                                $(this).val('');
-                                $(this).focus();
-                                self.renderMessage(message);
-                                self.socket.emit('message', message);
+                                this.$messageText.val('');
+                                this.$messageText.focus();
+                                this.renderMessage(message);
+                                this.socket.emit('message', message);
                             } else {
                                 e.preventDefault();
                             }
                         }
                     });
-                    self.$btnMessages.on('click', function() {
-                        if (self.$messageText.val().trim() != '') {
-                            var message = {
-                                sender: self.userName,
-                                text: self.$messageText.val()
+                    this.$btnMessages.on('click', () => {
+                        if (this.$messageText.val().trim() != '') {
+                            let message = {
+                                sender: this.userName,
+                                text: this.$messageText.val()
                             }
-                            self.$messageText.val('');
-                            self.$messageText.focus();
-                            self.renderMessage(message);
-                            self.socket.emit('message', message);
+                            this.$messageText.val('');
+                            this.$messageText.focus();
+                            this.renderMessage(message);
+                            this.socket.emit('message', message);
                         }
                     });
                 },
                 renderMessage: function(message) {
-                    var self = this;
-                    var tipoMensaje = message.sender == self.userName ? 'recibidos' : 'enviados';
-                    var messageList = $('.historial-chat');
-                    var messageTemplate = '<div class=":tipoMensaje:">' +
-                        '<div class="mensaje">' +
-                        '<div class ="imagen">' +
-                        '<img src="image/person.png" alt="Contacto"/></div>' +
-                        '<div class="texto">' +
-                        '<span class="nombre">:nombre:</span><br>' +
-                        '<span>:mensaje:</span></div>' +
-                        '<div class="hora">' +
-                        '<span class="numHora">:hora:</span></div>' +
-                        '</div></div>';
-                    var currentDate = new Date();
-
-                    function getTimeMessage(currentDate) {
+                    let tipoMensaje = message.sender == this.userName ? 'recibidos' : 'enviados',
+                        messageList = $('.historial-chat');
+                    let currentDate = new Date();
+                    const getTimeMessage = currentDate => {
                         function fix(n) { return n < 10 ? '0' + n : n }
                         return fix(currentDate.getHours()) + ':' + fix(currentDate.getMinutes());
                     }
-                    var messageTime = getTimeMessage(currentDate);
-                    var newMessage = messageTemplate
-                        .replace(':tipoMensaje:', tipoMensaje)
-                        .replace(':nombre', message.sender)
-                        .replace(':mensaje:', message.text)
-                        .replace(':hora:', messageTime);
-                    messageList.append(newMessage);
-                    $('.historial-chat').animate({ scrollTop: $('.historial-chat').scrollHeight }, 500);
+                    let messageTime = getTimeMessage(currentDate);
+                    messageList.append(
+                        `<div class="${tipoMensaje}">
+                        <div class="mensaje">
+                        <div class ="imagen">
+                        <img src="image/person.png" alt="Contacto"/></div>
+                        <div class="texto">
+                        <span class="nombre">${message.sender}</span><br>
+                        <span>${message.text}</span></div>
+                        <div class="hora">
+                        <span class="numHora">${messageTime}</span></div>
+                        </div></div>`);
+                    $('.scroll-container').animate({ scrollTop: $('.scroll-container').get(0).scrollHeight }, 500);
                 }
             }
         })()

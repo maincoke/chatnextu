@@ -1,64 +1,64 @@
 // Funcionalidad de Chat
-var express = require('express');
-var Storage = require('../Storage');
-var Router = express.Router();
+const express = require('express'),
+    Storage = require('../Storage'),
+    Router = express.Router();
 
-Router.get('/users', function(req, res) {
+Router.get('/users', (req, res) => {
     // GET Usuario
     Storage.getData('users')
-        .then(function(users) {
+        .then(users => {
             res.json(users);
-        }).catch(function(error) {
+        }).catch(error => {
             res.sendStatus(500).json(error)
         });
 });
 
-Router.get('/messages', function(req, res) {
+Router.get('/messages', (req, res) => {
     // GET Mensajes
     Storage.getData('messages')
-        .then(function(messages) {
+        .then(messages => {
             res.json(messages);
-        }).catch(function(error) {
+        }).catch(error => {
             res.sendStatus(500).json(error)
         });
 });
 
-Router.post('/users', function(req, res) {
+Router.post('/users', (req, res) => {
     // POST Usuario
-    var user = req.body.user;
+    let user = req.body.user;
     Storage.getData('users')
-        .then(function(users) {
-            return new Promise(function(resolve, reject) {
+        .then(users => {
+            return new Promise((resolve, reject) => {
                 Storage.saveData('users', user, users)
-                    .then(function(users) { // message
+                    .then(users => { // message
                         resolve(users); // message
                     }).catch(function(err) {
                         reject(err);
                     })
             })
-        }).then(function(users) { // message
+        }).then(users => { // message
             res.json(users); // message
-        }).catch(function(err) {
+        }).catch(err => {
             res.sendStatus(500).json(err);
         });
 });
 
-Router.post('/messages', function(req, res) {
+Router.post('/messages', (req, res) => {
     // POST Mensajes
-    var message = req.body.message;
+    let message = req.body.message;
     Storage.getData('message')
-        .then(function(message) {
-            return new Promise(function(resolve, reject) {
+        .then(message => {
+            return new Promise((resolve, reject) => {
                 Storage.saveData('messages', message, message)
-                    .then(function(message) {
+                    .then(message => {
                         resolve(message);
-                    }).catch(function(err) {
+                    }).catch(err => {
                         reject(err);
                     })
             })
-        }).then(function(message) {
+        }).then(message => {
             res.json(message);
-        }).catch(function(err) {
+        }).catch(err => {
             res.sendStatus(500).json(err);
         });
 });
