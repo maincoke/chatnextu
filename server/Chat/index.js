@@ -32,7 +32,7 @@ Router.post('/users', (req, res) => {
                 Storage.saveData('users', user, users)
                     .then(users => { // message
                         resolve(users); // message
-                    }).catch(function(err) {
+                    }).catch(err => {
                         reject(err);
                     })
             })
